@@ -10,7 +10,7 @@ void execmd(char **argv)
 {
 	char *command = NULL, *user_command = NULL;
 
-	if (argv)
+	if (argv && argv[0])
 	{
 		/* get the command */
 		command = argv[0];
@@ -18,10 +18,26 @@ void execmd(char **argv)
 		/* generate the path to this command before passing it to execve */
 		user_command = get_location(command);
 
-		/* execute the command with execve */
-		if (execve(user_command, argv, NULL) == -1)
+		if (user_command)
 		{
-			perror("Error:");
-		};
+			/* Execute the command with execve */
+			if (execve(user_command, argv, NULL) == -1)
+			{
+				perror("execve");
+				
+				fprintf(stderr, "Failed to execute command: %s\n", command);
+			}
+			free(user_command);
+		}
+		else
+		{
+			fprintf(stderr, "Command not found: %s\n", command);
+			exit(EXIT_FAILURE);
+		}
+	}
+	else
+	{
+		fprintf(stderr, "Invalid command or arguments\n");
+		exit(EXIT_FAILURE);
 	}
 }

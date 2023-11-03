@@ -35,16 +35,13 @@ int main(int ac, char **argv)
 			return (-1);
 		}
 
-		/* allocate memory for a copy of user input */
-		lineptr_new = malloc(sizeof(char) * input);
-
+		lineptr_new = strdup(lineptr);
+		
 		if (lineptr_new == NULL)
 		{
 			perror("tsh: memory allocation error");
 			return (-1);
 		}
-		/* make a compy of the command/user input */
-		strcpy(lineptr_new, lineptr);
 
 		/* split the string/user input into an array of words */
 		token  = strtok(lineptr, delim);
@@ -65,18 +62,17 @@ int main(int ac, char **argv)
 
 		for (i = 0; token != NULL; i++)
 		{
-			argv[i] = malloc(sizeof(char) * strlen(token));
-			strcpy(argv[i], token);
-
+			argv[i] = strdup(token);
 			token = strtok(NULL, delim);
 		}
+
 		argv[i] = NULL;
 
 		/* execute the command with execve */
 		execmd(argv);
+		free(lineptr);
+		free(lineptr_new);
+		free(argv);
 	}
-	free(lineptr);
-	free(lineptr_new);
-
 	return (0);
 }
