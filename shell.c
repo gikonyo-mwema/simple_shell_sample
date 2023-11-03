@@ -8,7 +8,7 @@
  */
 int main(int ac, char **argv)
 {
-	char *prompt = "(shell) $ ";
+	char *prompt = "(Sample-Shell) $ ";
 	char *lineptr = NULL, *lineptr_new = NULL;
 	size_t n = 0;
 	ssize_t input;
@@ -20,44 +20,47 @@ int main(int ac, char **argv)
 	/* declaring void variables */
 	(void)ac;
 
-	/* create an infinite loop */
+	/* Create  a loop for shell prompt */
 	while (1)
 	{
 		printf("%s", prompt);
+		
+		/* get user input */
 		input = getline(&lineptr, &n, stdin);
-		/* check if the getline function failed or reached EOF */
+		
+		/* check if the getline function failed or reached EOF or user use CTRL + D */
 		if (input == -1)
 		{
-			printf("Exiting NOW \n");
+			printf("Exiting shell....\n");
 			return (-1);
 		}
 
-		/* allocate memery for a copy of the lineprtr - lineptr_new */
+		/* allocate memory for a copy of user input */
 		lineptr_new = malloc(sizeof(char) * input);
+
 		if (lineptr_new == NULL)
 		{
-			perror("memory allocation error");
+			perror("tsh: memory allocation error");
 			return (-1);
 		}
-
-		/* copy lineptr to lineptr_new */
+		/* make a compy of the command/user input */
 		strcpy(lineptr_new, lineptr);
 
-		/* split the string (lineptr) intor an array of words */
-		/* calculate the total number of tokens */
-		token = strtok(lineptr, delim);
+		/* split the string/user input into an array of words */
+		token  = strtok(lineptr, delim);
 
+		/* allocate memory to store the variable, determine no of token */
 		while (token != NULL)
 		{
 			token_num++;
 			token = strtok(NULL, delim);
 		}
-		token++;
+		token_num++;
 
-		/* Allocate space to hold the array of strings */
+		/* allocate memory for the pointer to the argument variable */
 		argv = malloc(sizeof(char *) * token_num);
 
-		/* store each token in the argv array */
+		/* Store each token in argv array */
 		token = strtok(lineptr_new, delim);
 
 		for (i = 0; token != NULL; i++)
@@ -69,10 +72,11 @@ int main(int ac, char **argv)
 		}
 		argv[i] = NULL;
 
-		printf("%s\n", lineptr);
-
-		/* free up allocated memory */
-		free(lineptr);
+		/* execute the command with execve */
+		execmd(argv);
 	}
+	free(lineptr);
+	free(lineptr_new);
+
 	return (0);
 }
