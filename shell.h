@@ -10,8 +10,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-void execmd(char **argv);
+int execmd(char **argv);
 char *get_location(char *command);
 int stat(const char *pathname, struct stat *statbuf);
-
+extern char **environ;
 #endif

@@ -66,10 +66,35 @@ int main(int ac, char **argv)
 			token = strtok(NULL, delim);
 		}
 
+
 		argv[i] = NULL;
 
-		/* execute the command with execve */
-		execmd(argv);
+if (strcmp(argv[0], "exit") == 0)
+{
+free(lineptr);
+free(lineptr_new);
+free(argv);
+printf("Exiting shell....\n");
+return (0);
+}
+else if 
+(strcmp(argv[0], "env") == 0)
+{
+char *env = *environ;
+while (env)
+{
+printf("%s\n", env);
+env = *(environ++);
+}
+}
+else
+{/* execute the command with execve */
+		if (execmd(argv) != 0)
+		{
+			fprintf(stderr, "Command execution failed");
+		}
+}
+
 		free(lineptr);
 		free(lineptr_new);
 		free(argv);

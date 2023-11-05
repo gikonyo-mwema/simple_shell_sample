@@ -6,7 +6,7 @@
  * @argv:
  * Return: 
  */
-void execmd(char **argv)
+int execmd(char **argv)
 {
 	char *command = NULL, *user_command = NULL;
 
@@ -22,22 +22,23 @@ void execmd(char **argv)
 		{
 			/* Execute the command with execve */
 			if (execve(user_command, argv, NULL) == -1)
-			{
-				perror("execve");
-				
-				fprintf(stderr, "Failed to execute command: %s\n", command);
-			}
-			free(user_command);
+{
+perror("execve");
+fprintf(stderr, "Failed to execute command: %s\n", command);
+return (-1);
+}
+free(user_command);
 		}
 		else
 		{
 			fprintf(stderr, "Command not found: %s\n", command);
-			exit(EXIT_FAILURE);
+			return (-1);
 		}
 	}
 	else
 	{
 		fprintf(stderr, "Invalid command or arguments\n");
-		exit(EXIT_FAILURE);
+		return (-1);
 	}
+return (0);
 }
