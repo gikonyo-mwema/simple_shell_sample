@@ -38,17 +38,21 @@ command = get_location(argv[0]);
 
 if (command)
 {
+if (access(command, X_OK) == 0)
+{
 /* Execute the command with execve */
 if (execve(command, argv, NULL) == -1)
 {
 perror("execve");
 fprintf(stderr, "Failed to execute command: %s\n", argv[0]);
+free(command);
 exit(EXIT_FAILURE);
 }
 }
 else
 {
 fprintf(stderr, "Command not found: %sn", argv[0]);
+free(command);
 exit(EXIT_FAILURE);
 }
 }
@@ -58,11 +62,13 @@ else
 int status;
 waitpid(pid, &status, 0);
 }
+
 }
 else
 {
 fprintf(stderr, "Invalid command or arguments\n");
 return (-1);
+}
 }
 return (0);
 }

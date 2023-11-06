@@ -16,14 +16,18 @@ char *get_location(char *command)
 	path = getenv("PATH");
 
 	/* check if the PATH environment var exist */
-	if (path)
-	{
+	if (path == NULL || command == NULL || *command == '\0')
+	{/* Invalid input or missing PATH environment varible */
+	return (NULL);
+	}
 		/* Create copy of PATH string for manipulation */
 		path_new = strdup(path);
 
 		/* check if memory allocation for PATH copy was successful */
-		if (path_new)
+		if (path_new == NULL)
 		{
+			return (NULL);
+		}
 			/* Tokenize the path copy */
 			token_path = strtok(path_new, ":");
 
@@ -48,6 +52,7 @@ char *get_location(char *command)
 					if (stat(file_path, &buffer) == 0)
 					{
 						free(path_new);
+						free(file_path);
 						return file_path;
 					}
 					else
@@ -62,8 +67,8 @@ char *get_location(char *command)
 
 			/* free memory for the path copy */
 			free(path_new);
-		}
-	}
+		
+	
 
 	/* If the command was not found, return NULL. */
 	 return NULL;
