@@ -6,16 +6,19 @@
  *
  * Return: 0 success
  */
-int main(int ac, char **argv)
+int main(int ac, char **argv __attribute__((unused)))
 {
-	char *prompt = "(Sample-Shell) $ ";
-	char *lineptr = NULL, *lineptr_new = NULL;
+	char *prompt = "($) ";
+	char *lineptr = NULL;
 	size_t n = 0;
 	ssize_t input;
 	const char *delim = " \n";
+	char **user_argv = NULL;
 	int token_num = 0;
 	char *token;
 	int i;
+
+
 
 	/* declaring void variables */
 	(void)ac;
@@ -32,17 +35,11 @@ int main(int ac, char **argv)
 		if (input == -1)
 		{
 			printf("Exiting shell....\n");
+			free(lineptr);
 			return (-1);
 		}
 
-		lineptr_new = strdup(lineptr);
-		
-		if (lineptr_new == NULL)
-		{
-			perror("tsh: memory allocation error");
-			return (-1);
-		}
-
+		token_num = 0;
 		/* split the string/user input into an array of words */
 		token  = strtok(lineptr, delim);
 
@@ -52,34 +49,30 @@ int main(int ac, char **argv)
 			token_num++;
 			token = strtok(NULL, delim);
 		}
-		token_num++;
-
+		
 		/* allocate memory for the pointer to the argument variable */
-		argv = malloc(sizeof(char *) * token_num);
+		user_argv = (char **)malloc(sizeof(char *) * (token_num + 1));
 
-		/* Store each token in argv array */
-		token = strtok(lineptr_new, delim);
+		/* Re-tokenize the input and Store each token in user_argv*/
+		token = strtok(lineptr, delim);
 
-		for (i = 0; token != NULL; i++)
+		for (i = 0; i <token_num; i++)
 		{
-			argv[i] = strdup(token);
+			user_argv[i] = strdup(token);
 			token = strtok(NULL, delim);
 		}
 
+		user_argv[i] = NULL;
 
-		argv[i] = NULL;
-
-if (strcmp(argv[0], "exit") == 0)
-{
-free(lineptr);
-free(lineptr_new);
-free(argv);
-printf("Exiting shell....\n");
-return (0);
-}
-else if 
-(strcmp(argv[0], "env") == 0)
-{
+		if (strcmp(user_argv[0], "exit") == 0)
+		{
+		free(lineptr);
+		free(user_argv);
+		printf("Exiting shell....\n");
+		return (0);
+		}
+		else if (strcmp(user_argv[0], "env") == 0)
+		{
 char *env = *environ;
 while (env)
 {
@@ -89,15 +82,29 @@ env = *(environ++);
 }
 else
 {/* execute the command with execve */
-		if (execmd(argv) != 0)
+		if (execmd(user_argv) != 0)
 		{
 			fprintf(stderr, "Command execution failed");
 		}
+
+
+
+
+
+
+
+
+
+
 }
 
+		/* Free allocated memory */
 		free(lineptr);
-		free(lineptr_new);
-		free(argv);
+		for (i = 0; i < token_num; i++)
+{
+free(user_argv[i]);
+}
+		free(user_argv);
 	}
 	return (0);
 }
