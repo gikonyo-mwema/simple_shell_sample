@@ -10,7 +10,7 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <unistd.h>
-
+void _print_shell( const char *output);
 int execmd(char **argv);
 char *get_location(char *command);
 int stat(const char *pathname, struct stat *statbuf);
