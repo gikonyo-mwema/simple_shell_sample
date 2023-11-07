@@ -12,14 +12,10 @@ int main(int ac, char **argv __attribute__((unused)))
 	char *lineptr = NULL;
 	const char *delim = " \n";
 	char **user_argv = NULL;
-
-
-
-	print_prompt(prompt);
-	lineptr = read_command();
-	user_argv = parse_command(lineptr, delim);
-
-
+	int token_num = 0;
+	char *token = NULL;
+	int i = 0;
+	char env_output[256];
 
 
 	/* declaring void variables */
@@ -28,30 +24,16 @@ int main(int ac, char **argv __attribute__((unused)))
 	/* Create  a loop for shell prompt */
 	while (1)
 	{
-		printf("%s", prompt);
+		print_prompt(prompt);
 		
 		/* get user input */
-		input = getline(&lineptr, &n, stdin);
+		lineptr = get_command();
 		
-		/* check if the getline function failed or reached EOF or user use CTRL + D */
-		if (input == -1)
-		{
-			printf("Exiting shell....\n");
-			free(lineptr);
-			return (-1);
-		}
-
-		token_num = 0;
+		
 		/* split the string/user input into an array of words */
-		token  = strtok(lineptr, delim);
+		user_argv = parse_command(lineptr, delim);
 
-		/* allocate memory to store the variable, determine no of token */
-		while (token != NULL)
-		{
-			token_num++;
-			token = strtok(NULL, delim);
-		}
-		
+			
 		/* allocate memory for the pointer to the argument variable */
 		user_argv = (char **)malloc(sizeof(char *) * (token_num + 1));
 
@@ -70,7 +52,7 @@ int main(int ac, char **argv __attribute__((unused)))
 		{
 		free(lineptr);
 		free(user_argv);
-		printf("Exiting shell....\n");
+		_print_shell("Exiting shell....\n");
 		return (0);
 		}
 		else if (strcmp(user_argv[0], "env") == 0)
@@ -78,7 +60,9 @@ int main(int ac, char **argv __attribute__((unused)))
 char *env = *environ;
 while (env)
 {
-printf("%s\n", env);
+strcpy(env_output, env);
+strcat(env_output,"\n");
+_print_shell(env_output);
 env = *(environ++);
 }
 }
@@ -86,18 +70,8 @@ else
 {/* execute the command with execve */
 		if (execmd(user_argv) != 0)
 		{
-			fprintf(stderr, "Command execution failed");
+			_print_shell("Command execution failed");
 		}
-
-
-
-
-
-
-
-
-
-
 }
 
 		/* Free allocated memory */
