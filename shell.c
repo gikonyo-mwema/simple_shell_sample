@@ -10,13 +10,15 @@ int main(int ac, char **argv __attribute__((unused)))
 {
 	char *prompt = "($) ";
 	char *lineptr = NULL;
-	size_t n = 0;
-	ssize_t input;
 	const char *delim = " \n";
 	char **user_argv = NULL;
-	int token_num = 0;
-	char *token;
-	int i;
+
+
+
+	print_prompt(prompt);
+	lineptr = read_command();
+	user_argv = parse_command(lineptr, delim);
+
 
 
 
