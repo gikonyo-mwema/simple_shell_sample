@@ -17,7 +17,7 @@ int main(int ac, char **argv __attribute__((unused)))
 	int i = 0;
 	char **env_p = environ;
 	char *env = *env_p;
-	char env_output[256];
+	char *env_output = NULL;
 
 
 	/* declaring void variables */
@@ -26,7 +26,11 @@ int main(int ac, char **argv __attribute__((unused)))
 	/* Create  a loop for shell prompt */
 	while (1)
 	{
-		print_prompt(prompt);
+		/* Only print the prompt in interactive mode */
+		if (isatty(STDIN_FILENO))
+		{
+			print_prompt(prompt);
+		}
 		
 		/* get user input */
 		lineptr = get_command();
@@ -68,6 +72,27 @@ int main(int ac, char **argv __attribute__((unused)))
 			{
 				while (env)
 				{
+					if (env_output == NULL)
+					{
+						/* Allocate memory for env_output */
+						env_output = malloc(strlen(env) + 2);
+						if (env_output == NULL)
+						{
+							free(lineptr);
+						        free(user_argv);
+					        	exit(EXIT_FAILURE);
+						}
+					}
+					else
+					{
+						env_output = realloc(env_output, strlen(env) + 2);
+						if (env_output == NULL)
+						{
+							free(lineptr);
+       							free(user_argv);
+						        exit(EXIT_FAILURE);
+						}
+					}
 					strcpy(env_output, env);
 					strcat(env_output,"\n");
 					_print_shell(env_output);
