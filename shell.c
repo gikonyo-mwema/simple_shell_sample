@@ -28,14 +28,12 @@ int main(int ac, char **argv __attribute__((unused)))
 		
 		/* get user input */
 		lineptr = get_command();
-		
-		
-		/* split the string/user input into an array of words */
-		user_argv = parse_command(lineptr, delim);
-
 			
 		/* allocate memory for the pointer to the argument variable */
 		user_argv = (char **)malloc(sizeof(char *) * (token_num + 1));
+
+		/* split the string/user input into an array of words */
+		user_argv = parse_command(lineptr, delim);
 
 		/* Re-tokenize the input and Store each token in user_argv*/
 		token = strtok(lineptr, delim);
@@ -46,8 +44,13 @@ int main(int ac, char **argv __attribute__((unused)))
 			token = strtok(NULL, delim);
 		}
 
+		if (i >= 0 && i < token_num)
+		{
 		user_argv[i] = NULL;
+		}
 
+		if (user_argv[0] != NULL)
+		{
 		if (strcmp(user_argv[0], "exit") == 0)
 		{
 		free(lineptr);
@@ -57,22 +60,25 @@ int main(int ac, char **argv __attribute__((unused)))
 		}
 		else if (strcmp(user_argv[0], "env") == 0)
 		{
-char *env = *environ;
-while (env)
-{
-strcpy(env_output, env);
-strcat(env_output,"\n");
-_print_shell(env_output);
-env = *(environ++);
-}
-}
-else
-{/* execute the command with execve */
+		char *env = *environ;
+		while (env)
+		{
+		strcpy(env_output, env);
+		strcat(env_output,"\n");
+		_print_shell(env_output);
+		env = *(environ++);
+		}
+		
+		}
+		
+		else
+		{/* execute the command with execve */
 		if (execmd(user_argv) != 0)
 		{
 			_print_shell("Command execution failed");
 		}
-}
+		}
+		}
 
 		/* Free allocated memory */
 		free(lineptr);
