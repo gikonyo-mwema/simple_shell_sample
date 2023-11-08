@@ -60,7 +60,7 @@ int main(int ac, char **argv __attribute__((unused)))
 			{
 				free(lineptr);
 				free(user_argv);
-				_print_shell("Exiting shell....\n");
+			/*	_print_shell("Exiting shell....\n");*/
 				return (0);
 			}
 
