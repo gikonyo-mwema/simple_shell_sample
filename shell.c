@@ -1,4 +1,41 @@
 #include "shell.h"
+
+char* allocate_env_output(char **env_p, char *lineptr, char **user_argv)
+{
+    char *env = *env_p;
+    char *env_output = NULL;
+
+    while (env)
+    {
+        if (env_output == NULL)
+        {
+            /* Allocate memory for env_output */
+            env_output = malloc(strlen(env) + 2);
+            if (env_output == NULL)
+            {
+                free(lineptr);
+                free(user_argv);
+                exit(EXIT_FAILURE);
+            }
+        }
+        else
+        {
+            env_output = realloc(env_output, strlen(env) + 2);
+            if (env_output == NULL)
+            {
+                free(lineptr);
+                free(user_argv);
+                exit(EXIT_FAILURE);
+            }
+        }
+        strcpy(env_output, env);
+        strcat(env_output,"\n");
+        env = *(++env_p);
+    }
+
+    return env_output;
+}
+
 /**
  * main - prompt the user to enter command, read command using getline
  * @ac: no of arguments
@@ -16,7 +53,6 @@ int main(int ac, char **argv __attribute__((unused)))
 	char *token = NULL;
 	int i = 0;
 	char **env_p = environ;
-	char *env = *env_p;
 	char *env_output = NULL;
 
 
@@ -70,39 +106,10 @@ int main(int ac, char **argv __attribute__((unused)))
 
 			else if (strcmp(user_argv[0], "env") == 0)
 			{
-				while (env)
-				{
-					if (env_output == NULL)
-					{
-						/* Allocate memory for env_output */
-						env_output = malloc(strlen(env) + 2);
-						if (env_output == NULL)
-						{
-							free(lineptr);
-						        free(user_argv);
-					        	exit(EXIT_FAILURE);
-						}
-					}
-					else
-					{
-						env_output = realloc(env_output, strlen(env) + 2);
-						if (env_output == NULL)
-						{
-							free(lineptr);
-       							free(user_argv);
-						        exit(EXIT_FAILURE);
-						}
-					}
-					strcpy(env_output, env);
-					strcat(env_output,"\n");
-					_print_shell(env_output);
-					env = *(++env_p);
-				}
-		
-			}		
+				env_output = allocate_env_output(env_p, lineptr, user_argv);
 
-			else
-			{
+				_print_shell(env_output);
+			}
 				/* execute the command with execve */
 				if (execmd(user_argv) != 0)
 				{
@@ -110,14 +117,14 @@ int main(int ac, char **argv __attribute__((unused)))
 				}
 			}
 		}
-	}
-	/* Free allocated memory */
-	free(lineptr);
-	for (i = 0; i < token_num; i++)
-	{
-		free(user_argv[i]);
-	}
-	free(user_argv);
+	
+		/* Free allocated memory */
+		free(lineptr);
+		for (i = 0; i < token_num; i++)
+		{
+			free(user_argv[i]);
+		}
+		free(user_argv);
 
 	return (0);
 }
