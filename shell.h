@@ -26,4 +26,6 @@ int execmd(char **argv);
 char *get_location(char *command);
 int stat(const char *pathname, struct stat *statbuf);
 extern char **environ;
+/*my_unsetev*/
+int my_setenv(const char *name, const char *value, int overwrite)
 #endif
