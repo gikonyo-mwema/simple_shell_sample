@@ -12,6 +12,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+#define BUFFER_SIZE 1024
+
 void print_prompt(const char *prompt);
 void _print_shell( const char *output);
 char** parse_command(char *lineptr, const char *delim);
@@ -27,5 +29,5 @@ char *get_location(char *command);
 int stat(const char *pathname, struct stat *statbuf);
 extern char **environ;
 /*my_unsetev*/
-int my_setenv(const char *name, const char *value, int overwrite)
+/*int my_setenv(const char *name, const char *value, int overwrite)*/
 #endif

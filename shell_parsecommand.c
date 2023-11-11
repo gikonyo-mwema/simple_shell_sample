@@ -3,7 +3,7 @@
 char** parse_command(char *lineptr, const char *delim)
 {
 	int token_num = 0;
-	char **user_argv = malloc(sizeof(char *));
+	char **user_argv = malloc(sizeof(char *) * BUFFER_SIZE);
 	char *token;
 	char **temp;
 
@@ -24,13 +24,16 @@ char** parse_command(char *lineptr, const char *delim)
 	{
 		user_argv[token_num] = token;
 		token_num++;
-		temp = realloc(user_argv, sizeof(char *) * (token_num + 1));
-		if (temp == NULL)
+		if (token_num >= BUFFER_SIZE)
 		{
-			free(user_argv);
-			return (NULL);
+			temp = realloc(user_argv, sizeof(char *) * (BUFFER_SIZE + token_num + 1));
+			if (temp == NULL)
+			{
+				free(user_argv);
+				return (NULL);
+			}
+		        user_argv = temp;
 		}
-	        user_argv = temp;
         	token = strtok(NULL, delim);
 	}
 	user_argv[token_num] = NULL;

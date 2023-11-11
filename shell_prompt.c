@@ -2,5 +2,5 @@
 
 void print_prompt(const char *prompt)
 {
-_print_shell(prompt);
+	_print_shell(prompt);
 }

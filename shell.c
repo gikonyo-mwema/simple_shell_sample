@@ -4,6 +4,7 @@ char* allocate_env_output(char **env_p, char *lineptr, char **user_argv)
 {
     char *env = *env_p;
     char *env_output = NULL;
+	char *temp;
 
     while (env)
     {
@@ -20,16 +21,21 @@ char* allocate_env_output(char **env_p, char *lineptr, char **user_argv)
         }
         else
         {
-            env_output = realloc(env_output, strlen(env) + 2);
-            if (env_output == NULL)
+            /* Resize memory for env_output */
+		temp = realloc(env_output, strlen(env_output) + strlen(env) + 2);
+
+            if (temp == NULL)
             {
                 free(lineptr);
                 free(user_argv);
+		free(env_output);
                 exit(EXIT_FAILURE);
             }
+		env_output = temp;
         }
         strcpy(env_output, env);
         strcat(env_output,"\n");
+
         env = *(++env_p);
     }
 
@@ -63,16 +69,16 @@ int main(int ac, char **argv __attribute__((unused)))
 	while (1)
 	{
 		/* Only print the prompt in interactive mode */
-		if (isatty(STDIN_FILENO))
-		{
+	/*	if (isatty(STDIN_FILENO))*/
+	/*	{*/
 			print_prompt(prompt);
-		}
+	/*	} */
 		
 		/* get user input */
 		lineptr = get_command();
 			
 		/* allocate memory for the pointer to the argument variable */
-		user_argv = (char **)malloc(sizeof(char *) * (token_num + 1));
+	/*	user_argv = (char **)malloc(sizeof(char *) * (token_num + 1)); */
 
 		/* split the string/user input into an array of words */
 		user_argv = parse_command(lineptr, delim);
