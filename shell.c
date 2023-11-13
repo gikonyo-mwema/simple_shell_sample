@@ -2,44 +2,32 @@
 
 char* allocate_env_output(char **env_p, char *lineptr, char **user_argv)
 {
-    char *env = *env_p;
-    char *env_output = NULL;
-	char *temp;
+	char *env = *env_p;
+	char *env_output = NULL;
+	size_t env_length;
+	size_t total_length = 0;
 
-    while (env)
-    {
-        if (env_output == NULL)
-        {
-            /* Allocate memory for env_output */
-            env_output = malloc(strlen(env) + 2);
-            if (env_output == NULL)
-            {
-                free(lineptr);
-                free(user_argv);
-                exit(EXIT_FAILURE);
-            }
-        }
-        else
-        {
-            /* Resize memory for env_output */
-		temp = realloc(env_output, strlen(env_output) + strlen(env) + 2);
+	while (env != NULL)
+	{	
+	
+		env_length = strlen(env);
 
-            if (temp == NULL)
-            {
-                free(lineptr);
-                free(user_argv);
-		free(env_output);
-                exit(EXIT_FAILURE);
-            }
-		env_output = temp;
-        }
-        strcpy(env_output, env);
-        strcat(env_output,"\n");
+		env_output = realloc(env_output, total_length + env_length + 2);
 
-        env = *(++env_p);
-    }
+		if (env_output == NULL)
+		{
+			perror("Memory allocation error");
+			exit(EXIT_FAILURE);
+		}
+		strcat(env_output, env);
+		strcat(env_output, "\n");
 
-    return env_output;
+		total_length += env_length + 1;
+		env = *(++env_p);
+	}
+	free(lineptr);
+	free(user_argv);
+	return (env_output);
 }
 
 /**
@@ -49,7 +37,7 @@ char* allocate_env_output(char **env_p, char *lineptr, char **user_argv)
  *
  * Return: 0 success
  */
-int main(int ac, char **argv __attribute__((unused)))
+int main(int ac, char **argv)
 {
 	char *prompt = "($) ";
 	char *lineptr = NULL;
@@ -60,19 +48,21 @@ int main(int ac, char **argv __attribute__((unused)))
 	int i = 0;
 	char **env_p = environ;
 	char *env_output = NULL;
+	int result;
 
 
 	/* declaring void variables */
 	(void)ac;
+	(void)argv;
 
 	/* Create  a loop for shell prompt */
 	while (1)
 	{
 		/* Only print the prompt in interactive mode */
-	/*	if (isatty(STDIN_FILENO))*/
-	/*	{*/
+		if (isatty(STDIN_FILENO))
+		{
 			print_prompt(prompt);
-	/*	} */
+		} 
 		
 		/* get user input */
 		lineptr = get_command();
@@ -117,7 +107,9 @@ int main(int ac, char **argv __attribute__((unused)))
 				_print_shell(env_output);
 			}
 				/* execute the command with execve */
-				if (execmd(user_argv) != 0)
+			/*	if (execmd(user_argv) != 0)*/
+				result = process_command(user_argv, lineptr, NULL);
+				if (result != 0)
 				{
 					_print_shell("Command execution failed");
 				}

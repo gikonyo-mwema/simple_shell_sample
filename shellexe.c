@@ -73,6 +73,7 @@ int process_command(char **user_argv, char *lineptr, char **env_p)
     {
 	env_output = allocate_env_output(env_p, lineptr, user_argv);
 	_print_shell(env_output);
+
     }
     else
     {
