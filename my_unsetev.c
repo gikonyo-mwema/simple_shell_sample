@@ -1,6 +1,6 @@
 #include "shell.h"
 
-int my_setenv(const char *name, const char *value, int overwrite)
+int my_setenv(const char *name, const char *value, char *overwrite)
 {
 	char *env_var;
 

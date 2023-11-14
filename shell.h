@@ -16,11 +16,12 @@
 
 typedef struct
 {
-	char **argv;
+	char **argv[10];
 	int status;
 	int err_num;
 } info_t;
 
+int _erratoi(const char *str);
 int _myexit(info_t *info);
 int _mycd(info_t *info);
 int _myhelp(info_t *info);
@@ -41,7 +42,7 @@ int stat(const char *pathname, struct stat *statbuf);
 extern char **environ;
 
 /*my_unsetev*/
-int my_setenv(const char *name, const char *value, int overwrite);
+int my_setenv(const char *name, const char *value, char *overwrite);
 int my_unsetenv(const char *name);
 
 #endif
