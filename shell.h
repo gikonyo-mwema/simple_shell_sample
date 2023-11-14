@@ -21,6 +21,10 @@ typedef struct
 	int err_num;
 } info_t;
 
+int _myexit(info_t *info);
+int _mycd(info_t *info);
+int _myhelp(info_t *info);
+
 void print_prompt(const char *prompt);
 void _print_shell( const char *output);
 char** parse_command(char *lineptr, const char *delim);

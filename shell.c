@@ -41,9 +41,14 @@ int main(int ac, char **argv)
 	const char *delim = " \n";
 	int result, token_num = 0, i = 0;
 	char *token = NULL, **user_argv = NULL, **env_p = environ, *env_output = NULL;
-	char *pipe_sign, *command_1, *command_2, **argv_1, **argv_2, *redir_sign, *command, **argv;
+	char *pipe_sign, *command_1, *command_2,**argv_redir, **argv_1, **argv_2, *redir_sign, *command, *file;
+	info_t info;
 	(void)ac;
 	(void)argv;
+
+	info.argv = argv;
+	info.status = 0;
+	info.err_num = 0;
 
 	while (1)
 	{
@@ -95,19 +100,19 @@ int main(int ac, char **argv)
 			}
 			else if (strcmp(user_argv[0], "_myhelp") == 0)
 			{
-				_myhelp(info);
+				_myhelp(&info);
 			}
 			else if (strcmp(user_argv[0], "_mycd") == 0)
 			{
-				_mycd(info);
+				_mycd(&info);
 			}
 			else if (strcmp(user_argv[0], "_myexit") == 0)
 			{
-				_myexit(info);
+				_myexit(&info);
 			}
 			else if (strchr(user_argv[0], '|') != NULL)
 			{
-				*pipe_sign = strchr(user_argv[0], '|');
+				pipe_sign = strchr(user_argv[0], '|');
 				*pipe_sign = '\0';
 				command_1 = user_argv[0];
 				command_2 = pipe_sign + 1;
@@ -126,9 +131,9 @@ int main(int ac, char **argv)
 				command = user_argv[0];
 				file = redir_sign + 1;
 
-				argv = parse_command(command, " ");
+				argv_redir= parse_command(command, " ");
 				execute_redirection(argv, file, 1);
-				free(argv);
+				free(argv_redir);
 			}
 			else
 			{
