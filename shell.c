@@ -41,6 +41,7 @@ int main(int ac, char **argv)
 	const char *delim = " \n";
 	int result, token_num = 0, i = 0;
 	char *token = NULL, **user_argv = NULL, **env_p = environ, *env_output = NULL;
+	char *pipe_sign, *command_1, *command_2, **argv_1, **argv_2, *redir_sign, *command, **argv;
 	(void)ac;
 	(void)argv;
 
@@ -51,6 +52,10 @@ int main(int ac, char **argv)
 			print_prompt(prompt);
 		} 
 		lineptr = get_command();
+		if (lineptr == NULL)
+		{
+			break;
+		}
 		user_argv = parse_command(lineptr, delim);
 		token = strtok(lineptr, delim);
 		while (token != NULL)
@@ -76,6 +81,54 @@ int main(int ac, char **argv)
 				env_output = allocate_env_output(env_p, lineptr, user_argv);
 				_print_shell(env_output);
 				free(env_output);
+			}
+			else if (strcmp(user_argv[0], "unsetenv") == 0)
+			{
+				if (user_argv[1] != NULL)
+				{
+					my_unsetenv(user_argv[1]);
+				}
+				else
+				{
+					_print_shell("Usage: unsetenv Variable\n");
+				}
+			}
+			else if (strcmp(user_argv[0], "_myhelp") == 0)
+			{
+				_myhelp(info);
+			}
+			else if (strcmp(user_argv[0], "_mycd") == 0)
+			{
+				_mycd(info);
+			}
+			else if (strcmp(user_argv[0], "_myexit") == 0)
+			{
+				_myexit(info);
+			}
+			else if (strchr(user_argv[0], '|') != NULL)
+			{
+				*pipe_sign = strchr(user_argv[0], '|');
+				*pipe_sign = '\0';
+				command_1 = user_argv[0];
+				command_2 = pipe_sign + 1;
+
+				argv_1 = parse_command(command_1, " ");
+				argv_2 = parse_command(command_2, " ");
+
+				execute_pipe(argv_1, argv_2);
+				free(argv_1);
+				free(argv_2);
+			}
+			else if (strchr(user_argv[0], '>') != NULL)
+			{
+				redir_sign = strchr(user_argv[0], '>');
+				*redir_sign = '\0';
+				command = user_argv[0];
+				file = redir_sign + 1;
+
+				argv = parse_command(command, " ");
+				execute_redirection(argv, file, 1);
+				free(argv);
 			}
 			else
 			{
