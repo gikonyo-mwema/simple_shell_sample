@@ -54,79 +54,61 @@ void execute_pipe(char **argv_1, char **argv_2)
 
 int process_command(char **user_argv, char *lineptr, char **env_p)
 {
-	char *pipe_sign;
-	char *command_1, *command_2;
-	char **argv_1, **argv_2;
-	char *redir_sign;	
-	char *command;
-	char *file;
-	char **argv;
+	char *pipe_sign, *command_1, *command_2, *redir_sign, *command, *file;
+	char **argv_1, **argv_2, **argv;
 	char *env_output;
 	
 	if (strcmp(user_argv[0], "exit") == 0)
-    {
-        free(lineptr);
-        free(user_argv);
-        return (0);
-    }
-    else if (strcmp(user_argv[0], "env") == 0)
-    {
-	env_output = allocate_env_output(env_p, lineptr, user_argv);
-	_print_shell(env_output);
+	{
+		free(lineptr);
+		free(user_argv);
+		exit(EXIT_SUCCESS);
+	}
+	else if (strcmp(user_argv[0], "env") == 0)
+	{
+		env_output = allocate_env_output(env_p, lineptr, user_argv);
+		_print_shell(env_output);
+	}
+	else
+	{
+		pipe_sign = strchr(user_argv[0], '|');
+		if (pipe_sign != NULL)
+		{
+			*pipe_sign = '\0';
+			command_1 = user_argv[0];
+			command_2 = pipe_sign + 1;
 
-    }
-    else
-    {
-        /* Check for a pipe in the command */
-        pipe_sign = strchr(user_argv[0], '|');
-        if (pipe_sign != NULL)
-        {
-            /* Split the command into two parts: before and after the pipe */
-            *pipe_sign = '\0';
-            command_1 = user_argv[0];
-            command_2 = pipe_sign + 1;
+			argv_1 = parse_command(command_1, " ");
+			argv_2 = parse_command(command_2, " ");
 
-            /* Parse each part of the command separately */
-            argv_1 = parse_command(command_1, " ");
-            argv_2 = parse_command(command_2, " ");
+			execute_pipe(argv_1, argv_2);
 
-            /* Execute the commands in a pipe */
-            execute_pipe(argv_1, argv_2);
+			free(argv_1);
+			free(argv_2);
+		}
+		else
+        	{
+			redir_sign = strchr(user_argv[0], '>');
+			if (redir_sign != NULL)
+			{
+				*redir_sign = '\0';
+				command = user_argv[0];
+				file = redir_sign + 1;
 
-            free(argv_1);
-            free(argv_2);
-        }
-        else
-        {
-            /* Check for redirection in the command */
-            redir_sign = strchr(user_argv[0], '>');
-            if (redir_sign != NULL)
-            {
-                /* Split the command into two parts: before and after the redirection */
-                *redir_sign = '\0';
-                command = user_argv[0];
-                file = redir_sign + 1;
-
-                /* Parse the command */
-                argv = parse_command(command, " ");
-
-                /* Execute the command with redirection */
-                execute_redirection(argv, file, 1);
-
-                free(argv);
-            }
-            else
-            {
-                /* execute the command with execve */
-                if (execmd(user_argv) != 0)
-                {
-                    _print_shell("Command execution failed");
-                }
-            }
-        }
-    }
-
-    return 0;
+				argv = parse_command(command, " ");
+				execute_redirection(argv, file, 1);
+				free(argv);
+			}
+			else
+			{
+				if (execmd(user_argv) != 0)
+				{
+					_print_shell("Command execution failed");
+				}
+			}
+		}
+	}
+	return 0;
 }
 
 void execute_redirection(char **argv, char *file, int direction)
@@ -135,7 +117,7 @@ void execute_redirection(char **argv, char *file, int direction)
     pid_t pid;
 
     pid = fork();
-    if (pid < 0) {
+    if (pid == -1) {
         perror("fork() failed");
         return;
     }
@@ -155,8 +137,8 @@ void execute_redirection(char **argv, char *file, int direction)
         close(fd);
 
         if (execvp(argv[0], argv) < 0) {
-            perror(argv[0]);
-            exit(1);
+            perror("execvp() failed");
+            exit(EXIT_FAILURE);
         }
     } else {
         wait(NULL);
@@ -201,22 +183,16 @@ int execmd(char **argv)
 			{
 				if (access(command, X_OK) == 0)
 				{
-					/* Execute the command with execve */
 					if (execve(command, argv, NULL) == -1)
 					{
-						perror("execve");
-						_print_shell("Failed to execute command: ");
-						_print_shell(argv[0]);
-						_print_shell("\n");
+						perror("execve() failed");
 						free(command);
 						exit(EXIT_FAILURE);
 					}
 				}
 				else
 				{
-					_print_shell("Command not found: ");
-					_print_shell(argv[0]);
-					_print_shell("\n");
+					_print_shell("Command not found or permission denied\n");
 					free(command);
 					exit(EXIT_FAILURE);
 				}
@@ -227,6 +203,10 @@ int execmd(char **argv)
 			/* Parent process */
 			int status;
 			waitpid(pid, &status, 0);
+			if (WIFEXITED(status))
+			{
+				return (WEXITSTATUS(status));
+			}
 		}
 	}
 	else
