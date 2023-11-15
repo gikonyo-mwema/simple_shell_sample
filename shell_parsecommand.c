@@ -23,7 +23,7 @@ char **parse_command(char *lineptr, const char *delim)
 			{
 				for (i = 0; i < token_num; i++)
 				{
-					free(user_argv);
+					free(user_argv[i]);
 				}
 				free(user_argv);
 				return (NULL);

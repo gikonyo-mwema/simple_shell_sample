@@ -12,7 +12,7 @@ char *get_location(char *command)
 	int command_length, directory_length;
 	struct stat buffer;
 
-	if (command == NULL || command == NULL || *command == '\0')
+	if (command == NULL || *command == '\0')
 	{
 		return (NULL);
 	}
@@ -33,21 +33,26 @@ char *get_location(char *command)
 	{
 		command_length = strlen(command);
 		directory_length = strlen(token_path);
+
 		file_path = malloc(command_length + directory_length + 2);
-		if (file_path)
+		if (file_path == NULL)
 		{
-			strcpy(file_path, token_path);
-			strcat(file_path, "/");
-			strcat(file_path, command);
-			if (stat(file_path, &buffer) == 0)
-			{
-				free(path_new);
-				return file_path;
-			}
-			else
-			{
+			free(path_new);
+			return (NULL);
+		}
+		strcpy(file_path, token_path);
+		strcat(file_path, "/");
+		strcat(file_path, command);
+		
+		if (stat(file_path, &buffer) == 0)
+		{
+			free(path_new);
+			return (file_path);
+		}
+		else
+		{
 			free(file_path);
-			}
+			return (NULL);
 		}
 		token_path = strtok(NULL, ":");
 	}
