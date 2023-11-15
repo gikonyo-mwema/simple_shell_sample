@@ -42,13 +42,9 @@ int main(int ac, char **argv)
 	int result, token_num = 0, i = 0;
 	char *token = NULL, **user_argv = NULL, **env_p = environ, *env_output = NULL;
 	char *pipe_sign, *command_1, *command_2,**argv_redir, **argv_1, **argv_2, *redir_sign, *command, *file;
-	info_t info;
 	(void)ac;
 	(void)argv;
-
-	info.argv = argv;
-	info.status = 0;
-	info.err_num = 0;
+	
 
 	while (1)
 	{
@@ -72,7 +68,7 @@ int main(int ac, char **argv)
 		user_argv[i] = NULL;
 		if (user_argv[0] != NULL)
 		{
-			if (i >= 0 && i < token_num)
+			if (i < token_num)
 			{
 				if (strcmp(user_argv[0], "exit") == 0)
 				{
@@ -87,6 +83,18 @@ int main(int ac, char **argv)
 				_print_shell(env_output);
 				free(env_output);
 			}
+			else if (strcmp(user_argv[0], "setenv") == 0)
+                        {
+                                if (user_argv[1] != NULL && user_argv[2] != NULL)
+                                {
+                                        my_setenv(user_argv[1], user_argv[2], "1");
+                                }
+                                else
+                                {
+                                        fprintf(stderr, "%s: setenv: Too few arguments. \n", argv[0]);
+                                }
+                        }
+
 			else if (strcmp(user_argv[0], "unsetenv") == 0)
 			{
 				if (user_argv[1] != NULL)
@@ -95,20 +103,8 @@ int main(int ac, char **argv)
 				}
 				else
 				{
-					_print_shell("Usage: unsetenv Variable\n");
+					fprintf(stderr, "%s: unsetenv: Too few arguments.\n", argv[0]);
 				}
-			}
-			else if (strcmp(user_argv[0], "_myhelp") == 0)
-			{
-				_myhelp(&info);
-			}
-			else if (strcmp(user_argv[0], "_mycd") == 0)
-			{
-				_mycd(&info);
-			}
-			else if (strcmp(user_argv[0], "_myexit") == 0)
-			{
-				_myexit(&info);
 			}
 			else if (strchr(user_argv[0], '|') != NULL)
 			{

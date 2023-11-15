@@ -5,18 +5,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
+#include <limits.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <errno.h>
 
 #define BUFFER_SIZE 1024
 
 typedef struct
 {
-	char **argv[10];
+	char **argv;
 	int status;
 	int err_num;
 } info_t;
